@@ -3,44 +3,40 @@ import { clgs } from "@/lib/clgs";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 
-function calc(payer, amnt, db = clgs, exclds = []) {
-  const avg = amnt / 4;
-  const payerRecord = db.find((c) => c.payer === payer);
-  if (!payerRecord) return;
-
-  const loanRecord = db.find((c) => c.payer === "0");
-
-  payerRecord.consmr.forEach((consumer) => {
-    if (!exclds.includes(consumer.n)) {
-      if (loanRecord) {
-        const loanConsumer = loanRecord.consmr.find((l) => l.n === payer);
-        if (loanConsumer && loanConsumer.amnt > 0) {
-          const deduction = Math.min(avg, loanConsumer.amnt);
-          loanConsumer.amnt -= deduction;
-          consumer.amnt += deduction;
-        } else {
-          consumer.amnt += avg;
-        }
-      } else {
-        consumer.amnt += avg;
-      }
-    }
-  });
-
-  return db;
-}
-
 const LunchCalc = () => {
   const { register, handleSubmit, watch } = useForm();
   const [updatedData, setUpdatedData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     const { payer, amount, excludes } = data;
-    const excludesArray = excludes ? excludes : [];
-    const result = calc(payer, parseFloat(amount), [...clgs], excludesArray);
-    setUpdatedData(result);
+    const response = await fetch("/api/calc", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ payer, amnt: amount, excludes }),
+    });
+
+    const result = await response.json();
+
+    setUpdatedData(result?.data);
     setIsModalOpen(true);
+  };
+
+  const udpateDataHandler = async () => {
+    const response = await fetch("/api/calc/update-bulk", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ updatedData }),
+    });
+
+    const result = await response.json();
+    if (result) {
+      setIsModalOpen(false);
+    }
   };
 
   const excludesWatch = watch("excludes", []);
@@ -115,16 +111,50 @@ const LunchCalc = () => {
       {isModalOpen && (
         <div className="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center overflow-y-auto">
           <div className="modal-content bg-black p-5 rounded shadow-lg w-full max-w-md">
-            <h2 className="text-lg font-semibold mb-4">Updated Data Preview</h2>
-            <pre className="bg-black text-white p-3 rounded overflow-x-auto text-sm">
+            <h2 className="text-lg font-semibold mb-4">
+              Date: {new Date().toLocaleDateString()}
+            </h2>
+            {/* <pre className="bg-black text-white p-3 rounded overflow-x-auto text-sm">
               {JSON.stringify(updatedData, null, 2)}
-            </pre>
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="mt-4 w-full sm:w-auto px-5 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-            >
-              Close
-            </button>
+            </pre> */}
+            {updatedData?.length
+              ? updatedData?.map((upd) => {
+                  return (
+                    <div className="mb-3">
+                      <div key={upd._id}>
+                        <p className="font-semibold">{upd.payer} Gets To:</p>
+                        <div>
+                          {upd?.consmr?.map((c, idx) => (
+                            <div key={idx}>
+                              <span>
+                                {c.n}: {c.amnt}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <hr />
+                    </div>
+                  );
+                })
+              : ""}
+            {/* <pre className="bg-black text-white p-3 rounded overflow-x-auto text-sm">
+                {JSON.stringify(updatedData, null, 2)}
+              </pre> */}
+            <div className="flex justify-between gap-x-8 items-center">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="mt-4 w-full sm:w-auto px-5 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={udpateDataHandler}
+                className="mt-4 w-full sm:w-auto px-5 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              >
+                Update
+              </button>
+            </div>
           </div>
         </div>
       )}
