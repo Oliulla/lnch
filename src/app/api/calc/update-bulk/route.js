@@ -15,18 +15,46 @@ export async function POST(req) {
     const client = await clientPromise;
     const db = client.db("lunch");
 
-    const bulkOps = body.updatedData.map((ud) => {
+    // await db.collection("payers").insertOne(payerHistory);
+
+    const bulkOpsForUpdatingDoc = body.updatedData.map((ud) => {
       return {
         updateOne: {
           filter: { id: ud.id },
-          update: { $set: { consmr: ud?.consmr } },
+          update: { $set: { consmr: ud?.consmr, updatedAt: new Date() } },
         },
       };
     });
 
-    const result = await db.collection("clgs").bulkWrite(bulkOps);
+    // console.log(body.payerId);
 
-    return NextResponse.json({ success: true, data: result });
+    const bulkOpsForCreateHistory = body.updatedData.map(
+      ({ _id, updatedAt, ...rest }) => {
+        // console.log({ ...rest }, "rest");
+        const payerHistory = {
+          payer: body?.payerId,
+          amount: Number(body?.amount),
+          // createdAt: new Date(),
+        };
+
+        return {
+          insertOne: {
+            userId: _id,
+            ...rest,
+            paidBy: payerHistory,
+            createdAt: new Date(),
+          },
+        };
+      }
+    );
+
+    await db.collection("histories").bulkWrite(bulkOpsForCreateHistory);
+
+    const updateRes = await db
+      .collection("clgs")
+      .bulkWrite(bulkOpsForUpdatingDoc);
+
+    return NextResponse.json({ success: true, data: updateRes });
   } catch (error) {
     console.error(error, "Error in POST function");
     return NextResponse.json({ success: false, message: "An error occurred." });

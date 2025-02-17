@@ -7,9 +7,14 @@ const LunchCalc = () => {
   const { register, handleSubmit, watch } = useForm();
   const [updatedData, setUpdatedData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [payerId, setPayerId] = useState("");
+  const [paidAmnt, setAmount] = useState(0);
 
   const onSubmit = async (data) => {
     const { payer, amount, excludes } = data;
+    setPayerId(payer);
+    setAmount(amount);
+
     const response = await fetch("/api/calc", {
       method: "POST",
       headers: {
@@ -30,7 +35,7 @@ const LunchCalc = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ updatedData }),
+      body: JSON.stringify({ updatedData, payerId, amount: paidAmnt }),
     });
 
     const result = await response.json();
@@ -118,9 +123,9 @@ const LunchCalc = () => {
               {JSON.stringify(updatedData, null, 2)}
             </pre> */}
             {updatedData?.length
-              ? updatedData?.map((upd) => {
+              ? updatedData?.map((upd, idx) => {
                   return (
-                    <div className="mb-3">
+                    <div key={idx} className="mb-3">
                       <div key={upd._id}>
                         <p className="font-semibold">{upd.payer} Gets To:</p>
                         <div>

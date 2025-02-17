@@ -1,0 +1,86 @@
+[
+  {
+    "userId": {
+      "$oid": "676085ef6490794fa5f5fc2d"
+    },
+    "id": 3,
+    "payer": "Aiyub",
+    "consmr": [
+      {
+        "n": "Shanin",
+        "amnt": 133
+      },
+      {
+        "n": "Oli",
+        "amnt": 0
+      },
+      {
+        "n": "Joni",
+        "amnt": 0
+      }
+    ]
+  },
+  {
+    "userId": {
+      "$oid": "676085ef6490794fa5f5fc2b"
+    },
+    "id": 1,
+    "payer": "Joni",
+    "consmr": [
+      {
+        "n": "Shanin",
+        "amnt": 0
+      },
+      {
+        "n": "Oli",
+        "amnt": 0
+      },
+      {
+        "n": "Aiyub",
+        "amnt": 44
+      }
+    ]
+  },
+  {
+    "userId": {
+      "$oid": "676085ef6490794fa5f5fc2c"
+    },
+    "id": 2,
+    "payer": "Shanin",
+    "consmr": [
+      {
+        "n": "Oli",
+        "amnt": 111
+      },
+      {
+        "n": "Aiyub",
+        "amnt": 0
+      },
+      {
+        "n": "Joni",
+        "amnt": 118
+      }
+    ]
+  },
+  {
+    "userId": {
+      "$oid": "676085ef6490794fa5f5fc2e"
+    },
+    "id": 4,
+    "payer": "Oli",
+    "consmr": [
+      {
+        "n": "Aiyub",
+        "amnt": 179
+      },
+      {
+        "n": "Shanin",
+        "amnt": 0
+      },
+      {
+        "n": "Joni",
+        "amnt": 7
+      }
+    ]
+  }
+]
