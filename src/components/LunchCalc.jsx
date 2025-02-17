@@ -47,7 +47,7 @@ const LunchCalc = () => {
   const excludesWatch = watch("excludes", []);
 
   return (
-    <div className="container min-h-screen p-4 sm:p-5">
+    <div className="container p-4 sm:p-5">
       <form onSubmit={handleSubmit(onSubmit)} className="mb-5">
         {/* Payer Dropdown */}
         <div className="mb-4">
